@@ -1,0 +1,23 @@
+- name: Install sqlite package
+  apt: name={{ item }} state=installed update_cache=yes
+  with_items: sqlite3
+
+- name: Create sqlite energy db
+  shell: cat /home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/docs/database.sql
+         | /usr/bin/sqlite3 /home/{{ pi_user }}//energypi/vendor/earlhickey/zf2-energy/data/db/energy.sqlite
+  args:
+    creates: /home/{{ pi_user }}/energy.sqlite
+  become: yes
+  become_user: "{{ pi_user }}"
+
+- name: Install phpliteadmin
+  git: repo=https://github.com/phpLiteAdmin/pla.git
+       dest=/home/{{ pi_user }}/energypi/public/phpliteadmin
+  become: yes
+  become_user: "{{ pi_user }}"
+
+- name: Configure phpliteadmin
+  become: yes
+  become_user: "{{ pi_user }}"
+  template: src=phpliteadmin.config.php dest=/home/{{ pi_user }}/energypi/public/phpliteadmin/phpliteadmin.config.php
+

@@ -1,0 +1,13 @@
+---
+- name: Configure a headless enegy_pi setup
+  hosts: pis
+  user: pi
+  sudo: yes
+
+  roles:
+    - server_pi
+    - composer
+    - energy
+    - sqlite
+    - nginx
+    - dropbox_uploader

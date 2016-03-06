@@ -1,0 +1,24 @@
+- name: Add Nginx and modules
+  apt: name={{ item }} state=latest
+  with_items:
+    - nginx
+    - php5-fpm
+    - php5-sqlite
+  notify: restart nginx
+
+# /etc/nginx/nginx.conf
+# worker_processes 4; -> worker_processes 2;
+
+- name: Unlink default
+  sudo: yes
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify: restart nginx
+
+- name: Add vhosts energypi
+  sudo: yes
+  template: src=energypi.conf dest=/etc/nginx/sites-available/energypi
+  notify: restart nginx
+
+- name: Enable vhosts energypi
+  file: src=/etc/nginx/sites-available/energypi dest=/etc/nginx/sites-enabled/energypi state=link
+  notify: restart nginx

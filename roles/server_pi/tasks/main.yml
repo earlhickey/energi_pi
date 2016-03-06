@@ -1,0 +1,51 @@
+---
+- name: Update SSHD Config so we can double check it while the rest runs.
+  template: src=sshd_config dest=/etc/ssh/sshd_config
+  notify: restart sshd
+
+- name: Check if packages need to be autoremoved
+  command: apt-get --dry-run autoremove
+  register: check_autoremove
+  changed_when: False
+
+- name: Autoremove unused packages
+  command: apt-get -y autoremove
+  when: "'packages will be REMOVED' in check_autoremove.stdout"
+
+- pause: prompt="SANITY CHECK!!! Everything from here on will add back to your server. Hit Ctrl+C now to abort and edit your roles/server_pi/tasks/main.yml file" seconds=15
+
+- name: Upgrade System
+  apt: update_cache=yes cache_valid_time=3600 upgrade=dist
+
+- name: Create user account
+  user: name="{{ pi_user }}" shell=/bin/bash groups=adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,netdev,gpio,i2c,spi,input append=yes state=present password={{ pi_user_password }}
+
+- name: Add local SSH keys
+  authorized_key: user="{{ pi_user }}" state=present key="{{ lookup('file', item) }}"
+  with_fileglob:
+    - /Users/{{ pi_user }}/.ssh/*.pub
+
+- name: Add commonly needed programs
+  apt: name={{ item }} state=latest
+  with_items:
+    - cu
+    - git
+    - python-pip
+    - denyhosts
+    - ufw
+    - php5-cli
+
+- name: Update UFW firewall to allow SSH access to local bogon ranges.
+  ufw: rule=allow name=OpenSSH src={{ item }}
+  with_items:
+    - 192.168.1.0/16
+
+- name: Update UWF filewall to allow all access to tcp port 80
+  ufw: rule=allow port=80 proto=tcp
+
+- name: Enable UFW and have it start on boot
+  ufw: state=enabled
+
+- name: Harden SSH with denyhosts
+  template: src=denyhosts.conf dest=/etc/denyhosts.conf
+  notify: restart denyhosts

@@ -1,0 +1,19 @@
+- name: Download dropbox uploader
+  get_url: url=https://raw.githubusercontent.com/andreafabrizi/Dropbox-Uploader/master/dropbox_uploader.sh
+           dest=/home/{{ pi_user }}/dropbox_uploader.sh
+           owner="{{ pi_user }}" group="{{ pi_user }}"
+           mode=0750
+
+# Readme @ https://github.com/andreafabrizi/Dropbox-Uploader
+
+- name: Add cron to backup database
+  cron: name="Backup DB every 3 hours"
+        user="{{ pi_user }}"
+        minute="0" hour="*/3"
+        job="/home/{{ pi_user }}/dropbox_uploader.sh upload /home/{{ pi_user }}/{{ energy_db }} {{ energy_db }} >> /dev/null 2>&1"
+
+- name: Add cron to save daily usage
+  cron: name="Backup DB on sundays"
+        user="{{ pi_user }}"
+        minute="5" hour="1" weekday="0"
+        job="/home/{{ pi_user }}/dropbox_uploader.sh upload /home/{{ pi_user }}/{{ energy_db }} /home/{{ pi_user }}/{{ energy_db }}.`date +\%Y\%m\%d` >> /dev/null 2>&1"

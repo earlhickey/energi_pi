@@ -1,0 +1,43 @@
+# Install pyserial python package.
+# PySerial is a python library for interfacing with serial interfaces
+- name: Install PySerial
+  pip: name=pyserial state=latest
+
+- name: Create ZF2 skeleton app
+  git: repo=https://github.com/zendframework/ZendSkeletonApplication.git
+       dest=/home/{{ pi_user }}/energypi
+       force=yes
+  become: yes
+  become_user: "{{ pi_user }}"
+
+- name: Add module zf2-energy
+  become: yes
+  become_user: "{{ pi_user }}"
+  template: src=composer.json dest=/home/{{ pi_user }}/energypi/composer.json
+
+- name: Composer install dependencies
+  composer: command=update working_dir=/home/{{ pi_user }}/energypi
+
+- name: Enable energy module
+  become: yes
+  become_user: "{{ pi_user }}"
+  copy: src=application.config.php dest=/home/{{ pi_user }}/energypi/config/application.config.php
+
+- name: Enable DB config
+  become: yes
+  become_user: "{{ pi_user }}"
+  template: src=local.php dest=/home/{{ pi_user }}/energypi/config/autoload/local.php
+
+
+# Cronjobs
+- name: Add cron to save current energy usage
+  cron: name="Save current energy usage"
+        user="{{ pi_user }}"
+        minute="1-59/3"
+        job="/usr/bin/python /home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/scripts/read-p1.py >> /dev/null 2>&1"
+
+- name: Add cron to save daily usage
+  cron: name="Save daily usage"
+        user="{{ pi_user }}"
+        minute="55" hour="1"
+        job="/usr/bin/python /home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/scripts/day.py >> /dev/null 2>&1"
