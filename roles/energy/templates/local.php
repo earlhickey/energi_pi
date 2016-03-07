@@ -16,7 +16,7 @@ return array(
             'Zend\Db\Adapter\Adapter' => function ($sm) {
                 return new Zend\Db\Adapter\Adapter(array(
                     'driver' => 'Pdo_Sqlite',
-                    'database' => '/home/{{ pi_user }}/{{ energy_db }}'
+                    'database' => '/home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/db/{{ energy_db }}'
                 ));
             },
         ),

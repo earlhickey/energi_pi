@@ -4,7 +4,7 @@
 
 - name: Create sqlite energy db
   shell: cat /home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/docs/database.sql
-         | /usr/bin/sqlite3 /home/{{ pi_user }}//energypi/vendor/earlhickey/zf2-energy/data/db/energy.sqlite
+         | /usr/bin/sqlite3 /home/{{ pi_user }}/energypi/vendor/earlhickey/zf2-energy/data/db/energy.sqlite
   args:
     creates: /home/{{ pi_user }}/energy.sqlite
   become: yes
