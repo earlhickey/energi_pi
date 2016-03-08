@@ -17,6 +17,8 @@
 
 - name: Composer install dependencies
   composer: command=update working_dir=/home/{{ pi_user }}/energypi
+  become: yes
+  become_user: "{{ pi_user }}"
 
 - name: Enable energy module
   become: yes
