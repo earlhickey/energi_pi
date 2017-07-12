@@ -7,13 +7,13 @@
 # Readme @ https://github.com/andreafabrizi/Dropbox-Uploader
 
 - name: Add cron to backup database
-  cron: name="Backup DB every 3 hours"
+  cron: name="Backup DB every 12 hours"
         user="{{ pi_user }}"
-        minute="0" hour="*/3"
+        minute="0" hour="*/12"
         job="/home/{{ pi_user }}/dropbox_uploader.sh upload /home/{{ pi_user }}/{{ energy_db }} {{ energy_db }} >> /dev/null 2>&1"
 
 - name: Add cron to save daily usage
   cron: name="Backup DB on sundays"
         user="{{ pi_user }}"
         minute="5" hour="1" weekday="0"
-        job="/home/{{ pi_user }}/dropbox_uploader.sh upload /home/{{ pi_user }}/{{ energy_db }} /home/{{ pi_user }}/{{ energy_db }}.`date +\%Y\%m\%d` >> /dev/null 2>&1"
+        job="/home/{{ pi_user }}/dropbox_uploader.sh upload /home/{{ pi_user }}/{{ energy_db }} {{ energy_db }}.`date +\%Y\%m\%d` >> /dev/null 2>&1"

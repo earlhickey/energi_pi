@@ -5,6 +5,7 @@
 
 - name: Create ZF2 skeleton app
   git: repo=https://github.com/zendframework/ZendSkeletonApplication.git
+       version=release-2.5.0
        dest=/home/{{ pi_user }}/energypi
        force=yes
   become: yes
